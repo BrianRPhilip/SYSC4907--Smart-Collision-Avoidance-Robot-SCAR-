@@ -13,7 +13,7 @@ Adam - create a kill switch for the RC car. Create and update logs for meetings/
 the pi4. If you have extra time you can read into how to process the images that we are getting for the following week
 (https://docs.opencv.org/master/d7/da8/tutorial_table_of_content_imgproc.html). 
 
-Shaviyo - get car up to date. connect pi to wifi (consider getting a router and making the system a local based system for maximum speed). 
+Brian(switched from Shaviyo) - get car up to date. connect pi to wifi (consider getting a router and making the system a local based system for maximum speed). 
 create test modules to make sure the all sensors are connected properly and is transmitting the right data to the driver board. 
 
-Brian -create the client-server system for transmitting video to computer to be processed with openCV later. 
+Shaviyo(switched from Brian) -create the client-server system for transmitting video to computer to be processed with openCV later. 

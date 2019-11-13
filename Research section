@@ -1,9 +1,0 @@
-Brian - detecting lines in image and dealing with distance from line and how to stay in between them
-Adam - detecting objects in image from pi camera (can also use camera on 2 to detect objects maybe? still in research stage)
-Shivanshi and Shaviyo - detecting car in image from camera on top. How we detect the car in the images and seperate it from other objects
-                        in the room. How to 2D map our findings and maybe communicate with the server on where the car is for better 
-                        execution of the autonomous car
- 
- Research: 
-    Good start here: The 
-    https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_houghlines/py_houghlines.html

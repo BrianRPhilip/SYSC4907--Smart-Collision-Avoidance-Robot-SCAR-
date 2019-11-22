@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
-from google.colab.patches import cv2_imshow
+import cv2imageload
+#from google.colab.patches import cv2_imshow
 
 
 # Making the Coordniates

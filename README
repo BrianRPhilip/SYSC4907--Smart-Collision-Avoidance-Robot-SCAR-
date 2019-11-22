@@ -1,1 +1,21 @@
 SYSC 4907 Project - SCAR(Smart collision avoiding robotics)
+
+Created (October 8th) - Due for Sunday, October 13th
+
+General note - To make sure we are all on the same page, download openCV 4.1.1 (https://opencv.org/releases/). We are using python 3.7.
+(https://www.anaconda.com/distribution/#download-section). This comes with a great platform known as jupyter notebook. We should code
+here for modularizing and testing out code as we go (It's basically an IDE). We can then either share links or upload it here on Github. 
+
+Shivanshi - create the motor code. Think of how a tank moves. Just need the car to move forward, right, and left. Point is to coordinate 
+the motors. We can later write up a script to demo the car moving using this. Use:
+(https://github.com/UCTRONICS/UCTRONICS_Smart_Robot_Car_RaspberryPi#graphical-programming) to get a visual understanding of what we need. 
+There is likely already a prebuilt setup to this. Check and make sure.
+
+Adam - create a kill switch for the RC car. Create and update logs for meetings/decisions being made. Think software being used, the RC car,
+the pi4. If you have extra time you can read into how to process the images that we are getting for the following week
+(https://docs.opencv.org/master/d7/da8/tutorial_table_of_content_imgproc.html). 
+
+Brian(switched from Shaviyo) - get car up to date. connect pi to wifi (consider getting a router and making the system a local based system for maximum speed). 
+create test modules to make sure the all sensors are connected properly and is transmitting the right data to the driver board. 
+
+Shaviyo(switched from Brian) -create the client-server system for transmitting video to computer to be processed with openCV later. 

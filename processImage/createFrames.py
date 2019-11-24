@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 
-# Playing video from file:
+Playing video from file:
 cap = cv2.VideoCapture(0)
 
 try:

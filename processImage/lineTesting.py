@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2imageload
-#from google.colab.patches import cv2_imshow
 
 
 # Making the Coordniates
@@ -70,4 +69,4 @@ lines = cv2.HoughLinesP(cropped_image, 2, np.pi / 180, 100, np.array([]), minLin
 averaged_lines = average_slope_intercept(lane_image, lines)
 lines_image = display_lines(lane_image, averaged_lines)
 combo_image(cv2.addWeighted(lane_image, 0.8, lines_image, 1, 1))
-cv2_imshow(combo_image)
+cv2.imshow(combo_image)

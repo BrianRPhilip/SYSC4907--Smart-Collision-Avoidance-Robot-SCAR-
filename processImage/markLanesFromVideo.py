@@ -320,6 +320,9 @@ def _process_image(image_in):
 # print("Read a new frame: ", success)
 # count +=1
 
+#   ///////////////            For Creating frames from video. ///////////////////////////////////////
+
+
 cap = cv2.VideoCapture("solidWhiteRight.mp4")
 
 try:

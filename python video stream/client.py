@@ -6,7 +6,7 @@ import picamera
 
 pi_socket = socket.socket()
 
-pi_socket.connect(('192.168.2.17', 8000))  # ADD Computer ip here HERE
+pi_socket.connect((socket.gethostbyname(socket.gethostname()), 8000))  # ADD Computer ip here HERE
 
 print('Enter quit to stop sending images to server: ')
 
@@ -41,4 +41,4 @@ try:
     connection.write(struct.pack('<L', 0))
 finally:
     connection.close()
-    client_socket.close()
+    pi_socket.close()

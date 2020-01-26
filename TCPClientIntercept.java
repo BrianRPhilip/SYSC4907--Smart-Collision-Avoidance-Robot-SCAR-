@@ -18,32 +18,33 @@ public class TCPClientIntercept {
     private void start() throws IOException {
         //while (true) {
         try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        	//int n = 1
-            JSONObject jsonObject2 = new JSONObject();
-            jsonObject2.put("1", 1);
-            //jsonObject2.put("5", 1);
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //int n = 1
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("1", 1);
+        //jsonObject2.put("5", 1);
 
-            OutputStream out = socket.getOutputStream();
-            ObjectOutputStream o = new ObjectOutputStream(out);
-            o.writeObject(jsonObject2);
-            
-            out.flush();
-            o.close();
-            System.out.println("Sent to server: " + " " + jsonObject2.get("key").toString());
+        OutputStream out = socket.getOutputStream();
+        ObjectOutputStream o = new ObjectOutputStream(out);
+        String stream = JasonConvert.SerializeObject(jsonObject2);
+        o.writeObject(stream);
+
+        out.flush();
+        o.close();
+        System.out.println("Sent to server: " + " " + jsonObject2.get("key").toString());
         //}
     }
-    
+
     public static void main(String[] args) throws Exception {
-    	TCPClientIntercept client = new TCPClientIntercept(
-                InetAddress.getByName("192.168.2.27"), 
+        TCPClientIntercept client = new TCPClientIntercept(
+                InetAddress.getByName("192.168.2.27"),
                 2001);
-        
+
         System.out.println("\r\nConnected to Server: " + client.socket.getInetAddress());
-        client.start();                
+        client.start();
     }
-}
+} 

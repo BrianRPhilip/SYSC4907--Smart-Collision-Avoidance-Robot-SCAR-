@@ -30,7 +30,12 @@ public class TCPClientIntercept {
 
         OutputStream out = socket.getOutputStream();
         ObjectOutputStream o = new ObjectOutputStream(out);
-        String stream = JasonConvert.SerializeObject(jsonObject2);
+        String stream = "01000000000000000000";
+        o.writeObject(stream);
+        
+        sleep(2000);
+        
+        stream = "05000000000000000000";
         o.writeObject(stream);
 
         out.flush();
@@ -41,10 +46,15 @@ public class TCPClientIntercept {
 
     public static void main(String[] args) throws Exception {
         TCPClientIntercept client = new TCPClientIntercept(
-                InetAddress.getByName("192.168.2.27"),
+                InetAddress.getByName("192.168.43.220"),
                 2001);
 
         System.out.println("\r\nConnected to Server: " + client.socket.getInetAddress());
         client.start();
+    }
+    
+    public static void sleep(int time){
+    	int i;
+    	for(i = 0; i < time; i ++);
     }
 } 

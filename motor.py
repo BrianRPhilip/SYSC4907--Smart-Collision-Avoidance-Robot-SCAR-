@@ -44,8 +44,8 @@ def rear_right():
 
 
 def rear_left():
-    GPIO.output(12, False)
-    GPIO.output(14, True)  # Motor 4 move forward (rear left)
+    GPIO.output(15, False)
+    GPIO.output(13, True)  # Motor 4 move forward (rear left)
 
 
 def move_back():
@@ -130,6 +130,8 @@ def disable_pwm():
     GPIO.output(35, False)
     GPIO.output(12, False)
 
+
+def cleanup_gpio():
     pwm.stop()
     pwm2.stop()
     pwm3.stop()
@@ -139,22 +141,39 @@ def disable_pwm():
 
 # TEST PROGRAM
 if __name__ == '__main__':
-    enable_pwm()
     move_car(10, 50)    # verify no bad input is put in
     sleep(1)
     move_car(1, 50) # Moves forward 2 seconds
+    enable_pwm()
     sleep(2)
+    disable_pwm()
     move_car(5, 0)  # Stop 1 second
+    enable_pwm()
     sleep(1)
+    disable_pwm()
     move_car(2, 50) # Moves right 2 seconds
+    enable_pwm()
     sleep(2)
+    disable_pwm()
     move_car(5, 0)  # Stop 1 second
+    enable_pwm()
     sleep(1)
+    disable_pwm()
     move_car(3, 50) # Moves left 2 seconds
+    enable_pwm()
     sleep(2)
+    disable_pwm()
     move_car(5, 0)  # Stop 1 second
+    enable_pwm()
     sleep(1)
+    disable_pwm()
     move_car(4, 50) # Moves backward 2 seconds
+    enable_pwm()
     sleep(2)
+    disable_pwm()
     move_car(5, 0)  # Stops
+    enable_pwm()
+    sleep(1)
+    disable_pwm()
     disable_pwm()   # ends test program and clears pins
+

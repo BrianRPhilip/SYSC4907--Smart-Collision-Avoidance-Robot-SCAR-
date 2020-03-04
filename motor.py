@@ -91,29 +91,30 @@ def duty_cycle(motor, speed):
 def move_car(direction, speed):  # forward 1, right 2, left 3, backward 4, 5 stop
     if direction != 1 or 2 or 3 or 4 or 5:
         print ("invalid format")
-    if direction == 1:
-        front_right();  duty_cycle(1, speed)
-        front_left();   duty_cycle(2, speed)
-        rear_left();    duty_cycle(3, speed)
-        rear_right();   duty_cycle(4, speed)
-    if direction == 2:
-        front_left();   duty_cycle(2, speed)
-        rear_left();  duty_cycle(3, speed)
-    if direction == 3:
-        front_right();  duty_cycle(1, speed)
-        rear_right();   duty_cycle(4, speed)
-    if direction == 4:
-        move_back()
-        duty_cycle(1, speed)
-        duty_cycle(2, speed)
-        duty_cycle(3, speed)
-        duty_cycle(4, speed)
-    if direction == 5:
-        stop_motors()
-        duty_cycle(1, speed)
-        duty_cycle(2, speed)
-        duty_cycle(3, speed)
-        duty_cycle(4, speed)
+    else:
+        if direction == 1:
+            front_right();  duty_cycle(1, speed)
+            front_left();   duty_cycle(2, speed)
+            rear_left();    duty_cycle(3, speed)
+            rear_right();   duty_cycle(4, speed)
+        if direction == 2:
+            front_left();   duty_cycle(2, speed)
+            rear_left();  duty_cycle(3, speed)
+        if direction == 3:
+            front_right();  duty_cycle(1, speed)
+            rear_right();   duty_cycle(4, speed)
+        if direction == 4:
+            move_back()
+            duty_cycle(1, speed)
+            duty_cycle(2, speed)
+            duty_cycle(3, speed)
+            duty_cycle(4, speed)
+        if direction == 5:
+            stop_motors()
+            duty_cycle(1, speed)
+            duty_cycle(2, speed)
+            duty_cycle(3, speed)
+            duty_cycle(4, speed)
 
 
 def enable_pwm():
@@ -139,19 +140,21 @@ def disable_pwm():
 # TEST PROGRAM
 if __name__ == '__main__':
     enable_pwm()
-    move_car(1, 50)
-    sleep(2)
-    move_car(5, 0)
+    move_car(10, 50)    # verify no bad input is put in
     sleep(1)
-    move_car(2, 50)
+    move_car(1, 50) # Moves forward 2 seconds
     sleep(2)
-    move_car(5, 0)
+    move_car(5, 0)  # Stop 1 second
     sleep(1)
-    move_car(3, 50)
+    move_car(2, 50) # Moves right 2 seconds
     sleep(2)
-    move_car(5, 0)
+    move_car(5, 0)  # Stop 1 second
     sleep(1)
-    move_car(4, 50)
+    move_car(3, 50) # Moves left 2 seconds
     sleep(2)
-    move_car(5, 0)
-    disable_pwm()
+    move_car(5, 0)  # Stop 1 second
+    sleep(1)
+    move_car(4, 50) # Moves backward 2 seconds
+    sleep(2)
+    move_car(5, 0)  # Stops
+    disable_pwm()   # ends test program and clears pins

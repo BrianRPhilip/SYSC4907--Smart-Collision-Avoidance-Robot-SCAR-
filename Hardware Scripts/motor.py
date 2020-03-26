@@ -89,7 +89,7 @@ def duty_cycle(motor, speed):
 
 
 def move_car(direction, speed):  # forward 1, right 2, left 3, backward 4, 5 stop
-    if direction != 1 or 2 or 3 or 4 or 5:
+    if direction != (1 or 2 or 3 or 4 or 5):
         print ("invalid format")
     else:
         if direction == 1:

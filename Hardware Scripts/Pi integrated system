@@ -300,7 +300,7 @@ def transferAndMotor(e):
 
 
 if __name__ == '__main__':
-    e = threading.Event
+    e = threading.Event()
     t = Thread(name = 'Motor',target=transferAndMotor, args=(e,) )
     t.start()
     try:

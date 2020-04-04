@@ -11,11 +11,11 @@ import time
 
 GPIO.setmode(GPIO.board)
 
-echo = 3
-trig = 5
+echo = 22
+trig = 11
 
 GPIO.setup(trig, GPIO.OUT)
-GPIO.setup(ECHO, GPIO.IN)
+GPIO.setup(echo, GPIO.IN)
 
 # clear trig pin
 GPIO.output(trig, False)

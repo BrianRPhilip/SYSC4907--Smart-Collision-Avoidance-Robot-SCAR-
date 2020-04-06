@@ -163,303 +163,285 @@ def main_func(image):
 
   class LineDetector:
 
-    def __init__(self, objpts, imgpts, src, dst, sliding_windows_per_line,
-                sliding_window_half_width, sliding_window_recenter_thres,
-                small_img_size=(256, 144), small_img_x_offset=20, small_img_y_offset=10,
-                img_dimensions=(720, 1280), lane_width_px=800,
-                lane_center_px_psp=600, real_world_lane_size_cm=(32, 27.5)):
-      self.objpts = objpts
-      self.imgpts = imgpts
-      (self.M_psp, self.M_inv_psp) = perspTransform(src, dst)
+    def __init__(self, objpts, imgpts, src, dst, sliding_windows_per_line, 
+                 sliding_window_half_width, sliding_window_recenter_thres, 
+                 small_img_size=(256, 144), small_img_x_offset=20, small_img_y_offset=10,
+                 img_dimensions=(720, 1280), lane_width_px=800, 
+                 lane_center_px_psp=600, real_world_lane_size_cm=(32, 27.5)):
+        self.objpts = objpts
+        self.imgpts = imgpts
+        (self.M_psp, self.M_inv_psp) = perspTransform(src, dst)
 
-      self.sliding_windows_per_line = sliding_windows_per_line
-      self.sliding_window_half_width = sliding_window_half_width
-      self.sliding_window_recenter_thres = sliding_window_recenter_thres
+        self.sliding_windows_per_line = sliding_windows_per_line
+        self.sliding_window_half_width = sliding_window_half_width
+        self.sliding_window_recenter_thres = sliding_window_recenter_thres
 
-      self.small_img_size = small_img_size
-      self.small_img_x_offset = small_img_x_offset
-      self.small_img_y_offset = small_img_y_offset
+        self.small_img_size = small_img_size
+        self.small_img_x_offset = small_img_x_offset
+        self.small_img_y_offset = small_img_y_offset
 
-      self.img_dimensions = img_dimensions
-      self.lane_width_px = lane_width_px
-      self.lane_center_px_psp = lane_center_px_psp
-      self.real_world_lane_size_cm = real_world_lane_size_cm
+        self.img_dimensions = img_dimensions
+        self.lane_width_px = lane_width_px
+        self.lane_center_px_psp = lane_center_px_psp 
+        self.real_world_lane_size_cm = real_world_lane_size_cm
 
-      # We can pre-compute some data here
-      self.ym_per_px = self.real_world_lane_size_cm[0] / self.img_dimensions[0]
-      self.xm_per_px = self.real_world_lane_size_cm[1] / self.lane_width_px
-      self.ploty = np.linspace(0, self.img_dimensions[0] - 1, self.img_dimensions[0])
+        # We can pre-compute some data here
+        self.ym_per_px = self.real_world_lane_size_cm[0] / self.img_dimensions[0]
+        self.xm_per_px = self.real_world_lane_size_cm[1] / self.lane_width_px
+        self.ploty = np.linspace(0, self.img_dimensions[0] - 1, self.img_dimensions[0])
 
-      self.previous_left_lane_line = None
-      self.previous_right_lane_line = None
+        self.previous_left_lane_line = None
+        self.previous_right_lane_line = None
 
-      self.previous_left_lane_lines = LaneLineHistory()
-      self.previous_right_lane_lines = LaneLineHistory()
+        self.previous_left_lane_lines = LaneLineHistory()
+        self.previous_right_lane_lines = LaneLineHistory()
 
-      self.total_img_count = 0
+        self.total_img_count = 0  
 
     def processImage(self, image):
       ll, rl, mid_fit = self.compute_lane_lines(image)
 
-      print(ll)  # .line_fit_x, rl.line_fit_x)
-      if ll == 0 and rl == 0:
+      print(ll)#.line_fit_x, rl.line_fit_x)
+      if ll == 0  and rl == 0:
         print("needs to turn")
-        return mid_fit, ll.line_fit_x, rl.line_fit_x
+        return mid_fit, ll.line_fit_x, rl. line_fit_x
       drawn_lines = self.draw_lane_lines(image, ll, rl)
-      #plt.imshow(image[image.shape[0] // 2:, :], cmap='gray')
-      #plt.show()
-      #plt.imshow(drawn_lines, cmap='gray')
-      #plt.show()
+      plt.imshow(image[image.shape[0]//2:,:], cmap = 'gray')
+      plt.show()  
+      plt.imshow(drawn_lines, cmap = 'gray')
+      plt.show()
 
-      ploty = np.linspace(0, image.shape[0] - 1, image.shape[0])
-      mid_fitx = (mid_fit[0] * ploty ** 2 + mid_fit[1] * ploty + mid_fit[2])
+      ploty = np.linspace(0, image.shape[0] - 1, image.shape[0] )
+      mid_fitx = (mid_fit[0] * ploty**2 + mid_fit[1] * ploty + mid_fit[2])
       pts_mid = np.dstack((mid_fitx, ploty)).astype(np.int32)
-      cv2.circle(image, (230, 250), 10, (255, 255, 255), -1)
-      i = cv2.polylines(image, pts_mid, False, (255, 140, 0), 5)
-      #plt.imshow(i, cmap='gray')
-      #plt.show()
+      cv2.circle(image, (230, 250), 10, (255,255,255), -1)
+      i = cv2.polylines(image, pts_mid, False,  (255, 140,0), 5)
+      plt.imshow(i, cmap = 'gray')
+      plt.show()
       print(mid_fit)
 
       return mid_fit, ll.polynomial_coeff, rl.polynomial_coeff
 
     def draw_lane_lines(self, warped_img, left_line, right_line):
-      """
-      Returns an image where the computed lane lines have been drawn on top of the original warped binary image
-      """
-      # Create an output image with 3 colors (RGB) from the binary warped image to draw on and  visualize the result
+        """
+        Returns an image where the computed lane lines have been drawn on top of the original warped binary image
+        """
+        # Create an output image with 3 colors (RGB) from the binary warped image to draw on and  visualize the result
 
-      out_img = np.dstack((warped_img, warped_img, warped_img)) * 255
+        out_img = np.dstack((warped_img, warped_img, warped_img))*255
 
-      # Now draw the lines
-      ploty = np.linspace(0, warped_img.shape[0] - 1, warped_img.shape[0])
-      pts_left = np.dstack((left_line.line_fit_x, ploty)).astype(np.int32)
-      pts_right = np.dstack((right_line.line_fit_x, ploty)).astype(np.int32)
+        # Now draw the lines
+        ploty = np.linspace(0, warped_img.shape[0] - 1, warped_img.shape[0])
+        pts_left = np.dstack((left_line.line_fit_x, ploty)).astype(np.int32)
+        pts_right = np.dstack((right_line.line_fit_x, ploty)).astype(np.int32)
 
-      cv2.polylines(out_img, pts_left, False, (255, 140, 0), 5)
-      cv2.polylines(out_img, pts_right, False, (255, 140, 0), 5)
+        cv2.polylines(out_img, pts_left, False,  (255, 140,0), 5)
+        cv2.polylines(out_img, pts_right, False, (255, 140,0), 5)
 
-      if not (left_line.line_fit_x[0] == 0 and left_line.line_fit_x[1] == 0 and left_line.line_fit_x[2] == 0):
-        for low_pt, high_pt in left_line.windows:
-          cv2.rectangle(out_img, low_pt, high_pt, (0, 255, 0), 3)
-      else:
-        print("not plotting left windows")
+        if not (left_line.line_fit_x[0] == 0 and left_line.line_fit_x[1] == 0 and left_line.line_fit_x[2] == 0):
+          for low_pt, high_pt in left_line.windows:
+            cv2.rectangle(out_img, low_pt, high_pt, (0, 255, 0), 3)
+        else:
+          print("not plotting left windows")
 
-      if not (right_line.line_fit_x[0] == 0 and right_line.line_fit_x[1] == 0 and right_line.line_fit_x[2] == 0):
-        for low_pt, high_pt in right_line.windows:
-          cv2.rectangle(out_img, low_pt, high_pt, (0, 255, 0), 3)
-      else:
-        print("not plotting right windows")
-      return out_img
+        if not (right_line.line_fit_x[0] == 0 and right_line.line_fit_x[1] == 0 and right_line.line_fit_x[2] == 0):
+          for low_pt, high_pt in right_line.windows:            
+              cv2.rectangle(out_img, low_pt, high_pt, (0, 255, 0), 3)           
+        else:
+          print("not plotting right windows")
+        return out_img   
 
     def compute_lane_lines(self, warped_img):
 
-      # Take a histogram of the bottom half of the image, summing pixel values column wise
-      histogram = np.sum(warped_img[warped_img.shape[0] // 2:, :], axis=0)
+        # Take a histogram of the bottom half of the image, summing pixel values column wise 
+        histogram = np.sum(warped_img[warped_img.shape[0]//2:,:], axis=0)
 
-      # Find the peak of the left and right halves of the histogram
-      # These will be the starting point for the left and right lines
-      midpoint = np.int(histogram.shape[0] // 2)
-      leftx_base = np.argmax(histogram[:midpoint])
-      rightx_base = np.argmax(histogram[midpoint:]) + midpoint  # don't forget to offset by midpoint!
+        # Find the peak of the left and right halves of the histogram
+        # These will be the starting point for the left and right lines 
+        midpoint = np.int(histogram.shape[0]//2)
+        leftx_base = np.argmax(histogram[:midpoint])
+        rightx_base = np.argmax(histogram[midpoint:]) + midpoint # don't forget to offset by midpoint!
 
-      # Set height of windows
-      window_height = np.int(warped_img.shape[0] // self.sliding_windows_per_line)
-      # Identify the x and y positions of all nonzero pixels in the image
-      # NOTE: nonzero returns a tuple of arrays in y and x directions
-      nonzero = warped_img.nonzero()
-      nonzeroy = np.array(nonzero[0])
-      nonzerox = np.array(nonzero[1])
 
-      total_non_zeros = len(nonzeroy)
-      non_zero_found_pct = 0.0
-      one_line_detected = False
+        # Set height of windows
+        window_height = np.int(warped_img.shape[0]//self.sliding_windows_per_line)
+        # Identify the x and y positions of all nonzero pixels in the image
+        # NOTE: nonzero returns a tuple of arrays in y and x directions
+        nonzero = warped_img.nonzero()
+        nonzeroy = np.array(nonzero[0])
+        nonzerox = np.array(nonzero[1])
 
-      # Current positions to be updated for each window
-      leftx_current = leftx_base
-      rightx_current = rightx_base
+        total_non_zeros = len(nonzeroy)
+        non_zero_found_pct = 0.0
+        one_line_detected = False
 
-      # Set the width of the windows +/- margin
-      margin = self.sliding_window_half_width
-      # Set minimum number of pixels found to recenter window
-      minpix = self.sliding_window_recenter_thres
-      # Create empty lists to receive left and right lane pixel indices
-      left_lane_inds = []
-      right_lane_inds = []
+        # Current positions to be updated for each window
+        leftx_current = leftx_base
+        rightx_current = rightx_base    
 
-      # Our lane line objects we store the result of this computation
-      left_line = LaneLine()
-      right_line = LaneLine()
 
-      if self.previous_left_lane_line is not None and self.previous_right_lane_line is not None:
-        # We have already computed the lane lines polynomials from a previous image
-        left_lane_inds = ((nonzerox > (self.previous_left_lane_line.polynomial_coeff[0] * (nonzeroy ** 2)
-                                      + self.previous_left_lane_line.polynomial_coeff[1] * nonzeroy
-                                      + self.previous_left_lane_line.polynomial_coeff[2] - margin))
-                          & (nonzerox < (self.previous_left_lane_line.polynomial_coeff[0] * (nonzeroy ** 2)
-                                        + self.previous_left_lane_line.polynomial_coeff[1] * nonzeroy
-                                        + self.previous_left_lane_line.polynomial_coeff[2] + margin)))
-
-        right_lane_inds = ((nonzerox > (self.previous_right_lane_line.polynomial_coeff[0] * (nonzeroy ** 2)
-                                        + self.previous_right_lane_line.polynomial_coeff[1] * nonzeroy
-                                        + self.previous_right_lane_line.polynomial_coeff[2] - margin))
-                          & (nonzerox < (self.previous_right_lane_line.polynomial_coeff[0] * (nonzeroy ** 2)
-                                          + self.previous_right_lane_line.polynomial_coeff[1] * nonzeroy
-                                          + self.previous_right_lane_line.polynomial_coeff[2] + margin)))
-
-        non_zero_found_left = np.sum(left_lane_inds)
-        non_zero_found_right = np.sum(right_lane_inds)
-        non_zero_found_pct = (non_zero_found_left + non_zero_found_right) / total_non_zeros
-
-        print("[Previous lane] Found pct={0}".format(non_zero_found_pct))
-        # print(left_lane_inds)
-
-      if non_zero_found_pct < 0.85:
-        print("Non zeros found below thresholds, begining sliding window - pct={0}".format(non_zero_found_pct))
+        # Set the width of the windows +/- margin
+        margin = self.sliding_window_half_width
+        # Set minimum number of pixels found to recenter window
+        minpix = self.sliding_window_recenter_thres
+        # Create empty lists to receive left and right lane pixel indices
         left_lane_inds = []
         right_lane_inds = []
 
-        # Step through the windows one by one
-        for window in range(self.sliding_windows_per_line):
-          # Identify window boundaries in x and y (and right and left)
-          # We are moving our windows from the bottom to the top of the screen (highest to lowest y value)
-          win_y_low = warped_img.shape[0] - (window + 1) * window_height
-          win_y_high = warped_img.shape[0] - window * window_height
+        # Our lane line objects we store the result of this computation
+        left_line = LaneLine()
+        right_line = LaneLine()
 
-          # Defining our window's coverage in the horizontal (i.e. x) direction
-          # Notice that the window's width is twice the margin
-          win_xleft_low = leftx_current - margin
-          win_xleft_high = leftx_current + margin
-          win_xright_low = rightx_current - margin
-          win_xright_high = rightx_current + margin
+        if self.previous_left_lane_line is not None and self.previous_right_lane_line is not None:
+            # We have already computed the lane lines polynomials from a previous image
+            left_lane_inds = ((nonzerox > (self.previous_left_lane_line.polynomial_coeff[0] * (nonzeroy**2) 
+                                           + self.previous_left_lane_line.polynomial_coeff[1] * nonzeroy 
+                                           + self.previous_left_lane_line.polynomial_coeff[2] - margin)) 
+                              & (nonzerox < (self.previous_left_lane_line.polynomial_coeff[0] * (nonzeroy**2) 
+                                            + self.previous_left_lane_line.polynomial_coeff[1] * nonzeroy 
+                                            + self.previous_left_lane_line.polynomial_coeff[2] + margin))) 
 
-          left_line.windows.append([(win_xleft_low, win_y_low), (win_xleft_high, win_y_high)])
-          right_line.windows.append([(win_xright_low, win_y_low), (win_xright_high, win_y_high)])
+            right_lane_inds = ((nonzerox > (self.previous_right_lane_line.polynomial_coeff[0] * (nonzeroy**2) 
+                                           + self.previous_right_lane_line.polynomial_coeff[1] * nonzeroy 
+                                           + self.previous_right_lane_line.polynomial_coeff[2] - margin)) 
+                              & (nonzerox < (self.previous_right_lane_line.polynomial_coeff[0] * (nonzeroy**2) 
+                                            + self.previous_right_lane_line.polynomial_coeff[1] * nonzeroy 
+                                            + self.previous_right_lane_line.polynomial_coeff[2] + margin))) 
 
-          good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) &
-                            (nonzerox >= win_xleft_low) & (nonzerox < win_xleft_high)).nonzero()[0]
-          good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) &
-                            (nonzerox >= win_xright_low) & (nonzerox < win_xright_high)).nonzero()[0]
+            non_zero_found_left = np.sum(left_lane_inds)
+            non_zero_found_right = np.sum(right_lane_inds)
+            non_zero_found_pct = (non_zero_found_left + non_zero_found_right) / total_non_zeros
 
-          # Append these indices to the lists
-          left_lane_inds.append(good_left_inds)
-          right_lane_inds.append(good_right_inds)
+            print("[Previous lane] Found pct={0}".format(non_zero_found_pct))
+            #print(left_lane_inds)
 
-          # If you found > minpix pixels, recenter next window on their mean position
-          if len(good_left_inds) > minpix:
-            leftx_current = np.int(np.mean(nonzerox[good_left_inds]))
-          if len(good_right_inds) > minpix:
-            rightx_current = np.int(np.mean(nonzerox[good_right_inds]))
+        if non_zero_found_pct < 0.85:
+            print("Non zeros found below thresholds, begining sliding window - pct={0}".format(non_zero_found_pct))
+            left_lane_inds = []
+            right_lane_inds = []
+
+            # Step through the windows one by one
+            for window in range(self.sliding_windows_per_line):
+                # Identify window boundaries in x and y (and right and left)
+                # We are moving our windows from the bottom to the top of the screen (highest to lowest y value)
+                win_y_low = warped_img.shape[0] - (window + 1)* window_height
+                win_y_high = warped_img.shape[0] - window * window_height
+
+                # Defining our window's coverage in the horizontal (i.e. x) direction 
+                # Notice that the window's width is twice the margin
+                win_xleft_low = leftx_current - margin
+                win_xleft_high = leftx_current + margin
+                win_xright_low = rightx_current - margin
+                win_xright_high = rightx_current + margin
+
+                left_line.windows.append([(win_xleft_low,win_y_low),(win_xleft_high,win_y_high)])
+                right_line.windows.append([(win_xright_low,win_y_low),(win_xright_high,win_y_high)])
+
+                good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & 
+                (nonzerox >= win_xleft_low) &  (nonzerox < win_xleft_high)).nonzero()[0]
+                good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & 
+                (nonzerox >= win_xright_low) &  (nonzerox < win_xright_high)).nonzero()[0]
+
+                # Append these indices to the lists
+                left_lane_inds.append(good_left_inds)
+                right_lane_inds.append(good_right_inds)
+
+                # If you found > minpix pixels, recenter next window on their mean position
+                if len(good_left_inds) > minpix:
+                    leftx_current = np.int(np.mean(nonzerox[good_left_inds]))
+                if len(good_right_inds) > minpix:        
+                    rightx_current = np.int(np.mean(nonzerox[good_right_inds]))
+
+            # These are the indices that are non zero in our sliding windows
+            left_lane_inds = np.concatenate(left_lane_inds)
+            right_lane_inds = np.concatenate(right_lane_inds)
+
+            #print('length right side lane: ' + str(right_lane_inds))
+
+            non_zero_found_left = np.sum(left_lane_inds)
+            non_zero_found_right = np.sum(right_lane_inds)
+            non_zero_found_pct = (non_zero_found_left + non_zero_found_right) / total_non_zeros
+
+            print("[Sliding windows] Found pct={0}".format(non_zero_found_pct))
 
 
-        # The indices that are non zero in our sliding windows
-        left_lane_inds = np.concatenate(left_lane_inds)
-        right_lane_inds = np.concatenate(right_lane_inds)
+        # Extract left and right line pixel positions
+        leftx = nonzerox[left_lane_inds]
+        lefty = nonzeroy[left_lane_inds] 
+        rightx = nonzerox[right_lane_inds]
+        righty = nonzeroy[right_lane_inds] 
 
-        #print('length right side lane: ' + str(right_lane_inds))
+        #print("[LEFT] Number of hot pixels={0}".format(len(leftx)))
+        #print("[RIGHT] Number of hot pixels={0}".format(len(rightx)))
+        # Fit a second order polynomial to each
+        #print(leftx, rightx)
+        if len(leftx) == 0 and len(rightx)==0:
+          print("empty list no lines. start turning in a circle")
+          return (0, 0, 0)
 
-        non_zero_found_left = np.sum(left_lane_inds)
-        non_zero_found_right = np.sum(right_lane_inds)
-        non_zero_found_pct = (non_zero_found_left + non_zero_found_right) / total_non_zeros
+        left_fit = np.polyfit(lefty, leftx, 2)
+        right_fit = np.polyfit(righty, rightx, 2)
+        if left_fit[0] == right_fit[0] and left_fit[1] == right_fit[1] and left_fit[2] == right_fit[2]:
+          one_line_detected = True
+          print("only one line create function here")
+        mid_fit = (left_fit + right_fit)/2
+        print("Poly left {0}".format(left_fit))
+        print("Poly right {0}".format(right_fit))
+        print("Poly mid {0}".format(mid_fit))
 
-        print("[Sliding windows] Found pct={0}".format(non_zero_found_pct))
+        if one_line_detected:
+          left_fit[0] = 0
+          left_fit[1] = 0
+          left_fit[2] = 0
+          new_leftx = []
+          for item in leftx:
+            new_leftx.append(0)
+          leftx = new_leftx
+          left_fit[0:2] = 0
+          print("left line is positive hence needs to turn right")
 
-      # Extract left and right line pixel positions
-      leftx = nonzerox[left_lane_inds]
-      lefty = nonzeroy[left_lane_inds]
-      rightx = nonzerox[right_lane_inds]
-      righty = nonzeroy[right_lane_inds]
+        left_line.polynomial_coeff = left_fit
+        right_line.polynomial_coeff = right_fit
 
-      #print("[LEFT] Number of hot pixels={0}".format(len(leftx)))
-      # print("[RIGHT] Number of hot pixels={0}".format(len(rightx)))
-      # Fit a second order polynomial to each
-      #print(leftx, rightx)
-      lf = [3]
-      rf = [3]
-      mf = [3]
-      if len(leftx) == 0 and len(rightx) == 0:
-        print("empty list no lines. start turning in a circle")
-        for i in range(0,2):
-          lf.append(0)
-          rf.append(0)
-          mf.append(0)
+        if not self.previous_left_lane_lines.append(left_line):
+            left_fit = self.previous_left_lane_lines.get_smoothed_polynomial()
+            left_line.polynomial_coeff = left_fit
+            self.previous_left_lane_lines.append(left_line, force=True)
+            print("**** REVISED Poly left {0}".format(left_fit))            
+        #else:
+            #left_fit = self.previous_left_lane_lines.get_smoothed_polynomial()
+            #left_line.polynomial_coeff = left_fit
 
-        ploty = np.linspace(0, warped_img.shape[0] - 1, warped_img.shape[0])
-        left_fitx = lf[0] * ploty ** 2 + lf[1] * ploty + lf[2]
-        right_fitx = rf[0] * ploty ** 2 + rf[1] * ploty + rf[2]
-        mid_fitx = mf[0] * ploty ** 2 + mf[1] * ploty + mf[2]
 
-        left_line.polynomial_coeff = lf
+        if not self.previous_right_lane_lines.append(right_line):
+            right_fit = self.previous_right_lane_lines.get_smoothed_polynomial()
+            right_line.polynomial_coeff = right_fit
+            self.previous_right_lane_lines.append(right_line, force=True)
+            print("**** REVISED Poly right {0}".format(right_fit))
+        #else:
+            #right_fit = self.previous_right_lane_lines.get_smoothed_polynomial()
+            #right_line.polynomial_coeff = right_fit
+
+
+        # Generate x and y values for plotting
+        ploty = np.linspace(0, warped_img.shape[0] - 1, warped_img.shape[0] )
+        left_fitx = left_fit[0] * ploty**2 + left_fit[1] * ploty + left_fit[2]
+        right_fitx = right_fit[0] * ploty**2 + right_fit[1] * ploty + right_fit[2]
+        mid_fitx = mid_fit[0] * ploty**2 + mid_fit[1] * ploty + mid_fit[2]
+
+        left_line.polynomial_coeff = left_fit
         left_line.line_fit_x = left_fitx
-        left_line.non_zero_x = leftx
+        left_line.non_zero_x = leftx  
         left_line.non_zero_y = lefty
 
-        right_line.polynomial_coeff = rf
+        right_line.polynomial_coeff = right_fit
         right_line.line_fit_x = right_fitx
         right_line.non_zero_x = rightx
         right_line.non_zero_y = righty
 
-        return (left_line, right_line, mf)
 
-      left_fit = np.polyfit(lefty, leftx, 2)
-      right_fit = np.polyfit(righty, rightx, 2)
-      if left_fit[0] == right_fit[0] and left_fit[1] == right_fit[1] and left_fit[2] == right_fit[2]:
-        one_line_detected = True
-        print("only one line create function here")
-      mid_fit = (left_fit + right_fit) / 2
-      print("Poly left {0}".format(left_fit))
-      print("Poly right {0}".format(right_fit))
-      print("Poly mid {0}".format(mid_fit))
-
-      if one_line_detected:
-        left_fit[0] = 0
-        left_fit[1] = 0
-        left_fit[2] = 0
-        new_leftx = []
-        for item in leftx:
-          new_leftx.append(0)
-        leftx = new_leftx
-        left_fit[0:2] = 0
-        print("right line is positive hence needs to turn left")
-
-      left_line.polynomial_coeff = left_fit
-      right_line.polynomial_coeff = right_fit
-
-      if not self.previous_left_lane_lines.append(left_line):
-        left_fit = self.previous_left_lane_lines.get_smoothed_polynomial()
-        left_line.polynomial_coeff = left_fit
-        self.previous_left_lane_lines.append(left_line, force=True)
-        print("**** REVISED Poly left {0}".format(left_fit))
-        # else:
-        # left_fit = self.previous_left_lane_lines.get_smoothed_polynomial()
-        # left_line.polynomial_coeff = left_fit
-
-      if not self.previous_right_lane_lines.append(right_line):
-        right_fit = self.previous_right_lane_lines.get_smoothed_polynomial()
-        right_line.polynomial_coeff = right_fit
-        self.previous_right_lane_lines.append(right_line, force=True)
-        print("**** REVISED Poly right {0}".format(right_fit))
-      # else:
-      # right_fit = self.previous_right_lane_lines.get_smoothed_polynomial()
-      # right_line.polynomial_coeff = right_fit
-
-      # Generate x and y values for plotting
-      ploty = np.linspace(0, warped_img.shape[0] - 1, warped_img.shape[0])
-      left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
-      right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
-      mid_fitx = mid_fit[0] * ploty ** 2 + mid_fit[1] * ploty + mid_fit[2]
-
-      left_line.polynomial_coeff = left_fit
-      left_line.line_fit_x = left_fitx
-      left_line.non_zero_x = leftx
-      left_line.non_zero_y = lefty
-
-      right_line.polynomial_coeff = right_fit
-      right_line.line_fit_x = right_fitx
-      right_line.non_zero_x = rightx
-      right_line.non_zero_y = righty
-
-      return (left_line, right_line, mid_fit)
-
+        return (left_line, right_line, mid_fit)
+      
   opts = 0
   ipts = 0
   algo = LineDetector(opts, ipts, src, dst, 20, 100, 50)

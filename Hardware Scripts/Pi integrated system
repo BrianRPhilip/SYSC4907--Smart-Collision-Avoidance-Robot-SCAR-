@@ -308,7 +308,8 @@ if __name__ == '__main__':
             dist = distance()
             time.sleep(0.2)
             if dist < 20:
-                e.clear();
+                e.clear()
+                stop()
                 disable_pwm()
                 dist = distance()
             else:

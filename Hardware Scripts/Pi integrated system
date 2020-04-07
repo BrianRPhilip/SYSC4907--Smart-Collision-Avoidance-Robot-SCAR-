@@ -165,7 +165,7 @@ def move_car(direction, speed):  # forward 1, right 2, left 3, backward 4, 5 sto
         front_right_reverse();
         duty_cycle(1, speed)
         rear_right_reverse();
-        duty_cycle(4, speed * 1.2)
+        duty_cycle(4, speed * 1.4)
     if direction == 3:  # left
         front_right();
         duty_cycle(1, speed)

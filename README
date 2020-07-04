@@ -6,43 +6,4 @@ General note - To make sure we are all on the same page, download openCV 4.1.1 (
 (https://www.anaconda.com/distribution/#download-section). This comes with a great platform known as jupyter notebook. We should code
 here for modularizing and testing out code as we go (It's basically an IDE). We can then either share links or upload it here on Github. 
 
-* Removed Roles from README since that is also put on the Roles.txt file. Read the different C files 
-* that is given on UCTRONICS source code and describe it's role on here. What we essentially want to do is
-* Tap into the Android app connection that the UCTRONICS car has as the remote control and user our own python code
-* to give the car Instructions
-
-clk.h:
-
-dma.c: 
-
-dma.h:
-
-gpio.h:
-
-mailbox.c: 
-
-mailbox.h:
-
-motordriver.c:
-
-motordriver.h:
-
-pcm.c:
-
-pcm.h:
-
-pwm.c:
-
-pwm.h
-
-remoteserver.c:
-
-remoteserver.h:
-
-rpihw.c:
-
-rpihw.h:
-
-ws2811.c:
-
-ws2811.h:
+This project

@@ -278,8 +278,10 @@ def transferAndMotor(e):
                 print('The new speed is = ', speed)
                 # print('The new time is = ', time)
 
-                move_car(command, speed)
+                move_car(command, 50)
                 enable_pwm()
+                time_sleep(0.4)
+                disable_pwm()
 
                 if command == 7:
                     cleanup_gpio()
